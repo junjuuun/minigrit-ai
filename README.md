@@ -90,6 +90,41 @@ env.close()
   `torch==2.8.0`に固定している（詳細は`notes.md`）
 - `GEMINI_API_KEY`はまだ設定していない（LLMを使うフェーズ5で必要になる）
 
+## 自宅PCでの再現手順（GitHubからclone後）
+
+このリポジトリには `venv/`・`logs/`・`.env` は含まれていない（`.gitignore`で除外）。
+新しいPCでは以下の手順でセットアップする。
+
+```
+git clone https://github.com/junjuuun/minigrit-ai.git
+cd minigrit-ai
+
+# venvを作成（Python 3.12推奨。インストール済みのPythonのバージョンを確認してから実行）
+python -m venv venv
+
+# パッケージをインストール（バージョンはrequirements.txtに固定済み）
+venv\Scripts\python.exe -m pip install --upgrade pip
+venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# 動作確認（minigrid / gymnasium / stable-baselines3 / torch が読み込めるか）
+venv\Scripts\python.exe -c "import minigrid, gymnasium, stable_baselines3, torch; print('OK')"
+```
+
+Mac/Linuxの場合は `venv\Scripts\python.exe` の部分を `venv/bin/python` に読み替える。
+
+### 詰まりやすい点
+
+- **Windows 11で`import stable_baselines3`がDLLエラーで失敗する場合**：
+  Windowsの「Smart App Control」が未署名のtorch DLLをブロックすることがある
+  （このPCで実際に遭遇。詳細は`notes.md`参照）。`requirements.txt`で既に
+  `torch==2.8.0`に固定しているので通常は起きないはずだが、起きた場合は
+  `venv\Scripts\python.exe -m pip install torch==2.8.0` のように枯れたバージョンへ
+  固定し直すと回避できることがある。
+- **`logs/`フォルダが無いと怒られる場合**：`recorder.py`の`EpisodeRecorder`は
+  ログファイルの親フォルダを自動作成するので、通常は`mkdir`しなくても動く。
+- **Gemini APIキー**：まだフェーズ5で使う予定のもので、現時点のセットアップでは不要。
+  使うときは環境変数`GEMINI_API_KEY`から読む想定（`.env`にはコードを書かず、コミットもしない）。
+
 ## 進み具合
 
 計画全体（フェーズ0〜6）の進捗は`claude.md`の「進行状況」チェックリストを参照。
